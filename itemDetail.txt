@@ -1,0 +1,5 @@
+Name: Storytelling - Dropdown Legend
+
+Short Description: A storytelling template for publishing a web map to a general audience
+
+Detailed Description: This template enables users to place a web map into a simple viewer. The template lets the map do most of the talking: its simple design features map, title, sub-title, and retractable legend.

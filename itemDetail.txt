@@ -1,4 +1,4 @@
-Name: Storytelling - Dropdown Legend
+Name: Storytelling Basic
 
 Short Description: A storytelling template for publishing a web map to a general audience
 

@@ -3,6 +3,9 @@ dojo.require("esri.layout");
 dojo.require("esri.widgets");
 dojo.require("esri.arcgis.utils");
 
+dojo.require("dojo.dom-construct");
+dojo.require("dojo.query");
+dojo.require("dojo.on");
 
 
 var map;
@@ -57,6 +60,7 @@ var mapDeferred = esri.arcgis.utils.createMap(configOptions.webmap, "map", {
   mapOptions: {
       slider: true,
       sliderStyle: "small",
+      maxZoom: getMaxZoom(),
       nav: false,
       wrapAround180: true
   },
@@ -73,6 +77,28 @@ mapDeferred.addCallback(function (response) {
   map = response.map;
 
   dojo.connect(map, "onUpdateEnd", hideLoader);
+
+  //Begin popup configurations added to the original storymap template
+  if (configOptions.popupIncludeZoomOutLink != undefined && configOptions.popupIncludeZoomOutLink != null && configOptions.popupIncludeZoomOutLink == true) {
+    var zoomOutLink = dojo.create("a", {
+      "class": "action",
+      "id": "zoomOutLink",
+      "innerHTML": "Zoom out",
+      "href": "#",
+      "onclick": "return false;"
+    }, dojo.query(".actionList", map.infoWindow.domNode)[0]);
+
+    dojo.on(zoomOutLink, "click", zoomToHomeExtent);
+  }
+
+  if (configOptions.popupMaxHeight == undefined || configOptions.popupMaxHeight == null || configOptions.popupMaxHeight == 0) {
+    configOptions.popupMaxHeight = 600;
+  }
+
+  if (configOptions.popupWidth != undefined && configOptions.popupWidth != null && configOptions.popupWidth > 0) {
+    map.infoWindow.resize(configOptions.popupWidth, configOptions.popupMaxHeight);
+  }
+  //End added configurations
 
   var layers = response.itemInfo.itemData.operationalLayers;
   if (map.loaded) {
@@ -91,6 +117,18 @@ mapDeferred.addErrback(function (error) {
 
 }
 
+function zoomToHomeExtent() {
+  map.setExtent(map._mapParams.extent);
+}
+
+function getMaxZoom() {
+  if (configOptions.maximumZoom != undefined && configOptions.maximumZoom > 0) {
+    return configOptions.maximumZoom;
+  }
+  else {
+    return -1;
+  }
+}
 
 function initUI(response) {
 //add chrome theme for popup

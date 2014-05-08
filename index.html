@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
 <html>
   <head>
@@ -60,7 +60,17 @@
         //and any service urls (geometry, geocode, print) 
         //that may be needed by the template.
         bingmapskey: commonConfig.bingMapsKey,
-        helperServices:commonConfig.helperServices 
+        helperServices: commonConfig.helperServices,
+      	//Maximum zoom level allowed in the storymap (0 - 20)
+        maximumZoom: 20,
+
+      	//Pop-up Configurations
+      	//Specify a custom popup width (in pixels) to override application default (min:0,max:1000):
+        popupWidth: undefined,
+      	//Specify a maximum popup height (in pixels) to override application default (min:0,max:1000). Only used if popupWidth is specified
+        popupMaxHeight: undefined,
+      	//Include 'Zoom out' link button in popups:
+        popupIncludeZoomOutLink: true
       };
       var app = new utilities.App(defaults);
       app.init().then(function(options){

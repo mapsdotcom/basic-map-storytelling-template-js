@@ -5,9 +5,6 @@ dojo.require("esri.arcgis.utils");
 dojo.require("esri.InfoTemplate");
 dojo.require("esri.layers.FeatureLayer");
 
-//dojo.require("esri.renderers.SimpleRenderer");
-//dojo.require("esri.symbols.SimpleFillSymbol");
-
 dojo.require("dojo.dom-construct");
 dojo.require("dojo.query");
 dojo.require("dojo.on");
@@ -102,9 +99,6 @@ mapDeferred.addCallback(function (response) {
     outFields: ["*"],
     opacity: 0
   });
-
-  //var symbol = new esri.symbol.SimpleFillSymbol();
-  //statesFeatureLayer.setRenderer(new esri.renderer.SimpleRenderer(symbol));
 
   map.addLayer(statesFeatureLayer);
 

@@ -2,10 +2,25 @@ dojo.require("esri.map");
 dojo.require("esri.layout");
 dojo.require("esri.widgets");
 dojo.require("esri.arcgis.utils");
+dojo.require("esri.InfoTemplate");
+dojo.require("esri.layers.FeatureLayer");
+
+//dojo.require("esri.renderers.SimpleRenderer");
+//dojo.require("esri.symbols.SimpleFillSymbol");
 
 dojo.require("dojo.dom-construct");
 dojo.require("dojo.query");
 dojo.require("dojo.on");
+
+dojo.require("dijit.layout.ContentPane");
+
+dojo.require("dojox.charting.Chart");  //try either Chart or Chart2D - maybe don't need both?
+//dojo.require("dojox.charting.Chart2D");
+dojo.require("dojox.charting.axis2d.Default");
+dojo.require("dojox.charting.plot2d.Columns");
+dojo.require("dojox.charting.themes.PlotKit.blue");
+dojo.require("dojox.charting.action2d.Tooltip");
+dojo.require("dojox.charting.action2d.Highlight");
 
 
 var map;
@@ -76,9 +91,25 @@ mapDeferred.addCallback(function (response) {
 
   map = response.map;
 
+  var popupTemplate = new esri.InfoTemplate();
+  popupTemplate.setTitle("${NAME}");
+  popupTemplate.setContent(getWindowContent);
+
+  var statesFeatureLayerServiceUrl = "http://services1.arcgis.com/VAI453sU9tG9rSmh/arcgis/rest/services/Congressional_Apportionment_features/FeatureServer/0";
+  var statesFeatureLayer = new esri.layers.FeatureLayer(statesFeatureLayerServiceUrl, {
+    mode: esri.layers.FeatureLayer.MODE_ONDEMAND, //MODE_SNAPSHOT
+    infoTemplate: popupTemplate,
+    outFields: ["*"],
+    opacity: 0
+  });
+
+  //var symbol = new esri.symbol.SimpleFillSymbol();
+  //statesFeatureLayer.setRenderer(new esri.renderer.SimpleRenderer(symbol));
+
+  map.addLayer(statesFeatureLayer);
+
   dojo.connect(map, "onUpdateEnd", hideLoader);
 
-  //Begin popup configurations added to the original storymap template
   if (configOptions.popupIncludeZoomOutLink != undefined && configOptions.popupIncludeZoomOutLink != null && configOptions.popupIncludeZoomOutLink == true) {
     var zoomOutLink = dojo.create("a", {
       "class": "action",
@@ -98,7 +129,7 @@ mapDeferred.addCallback(function (response) {
   if (configOptions.popupWidth != undefined && configOptions.popupWidth != null && configOptions.popupWidth > 0) {
     map.infoWindow.resize(configOptions.popupWidth, configOptions.popupMaxHeight);
   }
-  //End added configurations
+
 
   var layers = response.itemInfo.itemData.operationalLayers;
   if (map.loaded) {
@@ -116,6 +147,87 @@ mapDeferred.addErrback(function (error) {
 });
 
 }
+
+function createChartDiv() {
+  var chartDiv = dojo.create("div", { id: "simplechart", style: { width: "380px", height: "250px" } }, dojo.body());
+}
+
+function getWindowContent(feature) {
+  dojo.destroy("simplechart");
+  createChartDiv();
+
+  var containerDiv = dojo.create("div", { id: "popupContainer", style: { width: "100%", height: "100%" } });
+
+  var topDiv = dojo.create("div", {
+    id: "popupIntro",
+    style: { height: "100%" },
+    innerHTML: "<b>" + feature.attributes.NAME + "</b>" + " - " + feature.attributes.SeatsDesc + "<br/><div style='text-align:center; font-style:italic; margin: 5px 0;'>Number of Seats in the House of Representatives, 1920-2010</div>"
+  }, containerDiv);
+
+  var chart = new dojox.charting.Chart("simplechart");
+  chart.setTheme(dojox.charting.themes.PlotKit.blue);
+  chart.addPlot("default", { type: "Columns", hAxis: "year", vAxis: "seats", gap: 2, minBarSize: 8 }); //, maxBarSize: 10
+  chart.addAxis("year", {
+    title: "Year",
+    titleGap: 2,
+    titleOrientation: "away",
+    minorTicks: true,
+    minorLabels: true,
+    minorTicStep: 1,
+    labels: [
+      { value: 1, text: "1920" },
+      { value: 2, text: "1930" },
+      { value: 3, text: "1940" },
+      { value: 4, text: "1950" },
+      { value: 5, text: "1960" },
+      { value: 6, text: "1970" },
+      { value: 7, text: "1980" },
+      { value: 8, text: "1990" },
+      { value: 9, text: "2000" },
+      { value: 10, text: "2010" }
+    ]
+  });
+  var seatsArray = [
+    feature.attributes.rep1920,
+    feature.attributes.rep1930,
+    feature.attributes.rep1940,
+    feature.attributes.rep1950,
+    feature.attributes.rep1960,
+    feature.attributes.rep1970,
+    feature.attributes.rep1980,
+    feature.attributes.rep1990,
+    feature.attributes.rep2000,
+    feature.attributes.rep2010
+  ];
+  var maxSeats = Math.max.apply(Math, seatsArray);
+  var xMax = maxSeats;
+  if (maxSeats < 5) {
+    xMax = 5;
+  }
+  chart.addAxis("seats", {
+    vertical: true,
+    titleGap: 8,
+    title: "Seats",
+    minorTicks: true,
+    minorLabels: true,
+    minorTickStep: 1,
+    min: 0,
+    max: xMax
+  });
+  
+  chart.addSeries("seatsByYear", seatsArray);
+  
+  var chartHighlight = new dojox.charting.action2d.Highlight(chart, "default");
+  var chartTooltip = new dojox.charting.action2d.Tooltip(chart, "default");
+
+  chart.render();
+
+  dojo.place("simplechart", containerDiv);
+
+  return containerDiv;
+}
+
+
 
 function zoomToHomeExtent() {
   map.setExtent(map._mapParams.extent);

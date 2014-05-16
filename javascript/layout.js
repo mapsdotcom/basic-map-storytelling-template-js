@@ -8,6 +8,10 @@ dojo.require("esri.layers.FeatureLayer");
 dojo.require("dojo.dom-construct");
 dojo.require("dojo.query");
 dojo.require("dojo.on");
+//dojo.require("dojo.dom");
+//dojo.require("esri.domUtils");
+//dojo.require("dijit.registry");
+//dojo.require("esri.dijit.Popup");
 
 dojo.require("dijit.layout.ContentPane");
 
@@ -90,6 +94,9 @@ mapDeferred.addCallback(function (response) {
 
   map = response.map;
 
+  //map.infoWindow.set("popupWindow", false);
+  //initializeSidebarPopup(map);
+
   if (configOptions.popupMaxHeight == undefined || configOptions.popupMaxHeight == null || configOptions.popupMaxHeight == 0) {
     configOptions.popupMaxHeight = 600;
   }
@@ -145,6 +152,30 @@ mapDeferred.addErrback(function (error) {
 });
 
 }
+
+//function initializeSidebarPopup(map) {
+//  var popup = map.infoWindow;
+
+//  dojo.connect(popup, "onSelectionChange", function () {
+//    var selectedFeature = popup.getSelectedFeature();
+//    displayPopupContent(popup.getSelectedFeature());
+//  });
+
+  //clear content when selection is cleared
+  //TODO
+  //dojo.connect(popup, "onClearFeatures", function () {
+  //  dojo.dom.byId("featureCount").set("content", "");
+  //  esri.domUtils.hide(dojo.dom.byId("pager"));
+  //});
+
+//}
+
+//function displayPopupContent(feature) {
+//  if (feature) {
+//    var content = feature.getContent();
+//    dijit.registry.byId("headerPopup").set("content", content);
+//  }
+//}
 
 function createChartDiv() {
   var chartDiv = dojo.create("div", { id: "simplechart", style: { width: "380px", height: "250px" } }, dojo.body());
@@ -221,6 +252,8 @@ function getWindowContent(feature) {
   chart.render();
 
   dojo.place("simplechart", containerDiv);
+  //var headerPopupDiv = document.getElementById("headerPopup");
+  //dojo.place("popupContainer", headerPopupDiv); //containerDiv
 
   return containerDiv;
 }

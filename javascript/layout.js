@@ -68,6 +68,8 @@ if(embed === "true" || $("#mainWindow").width() < 768 && embed != "false"){
   dijit.byId("mainWindow").layout();
 }
 
+
+
 var mapDeferred = esri.arcgis.utils.createMap(configOptions.webmap, "map", {
   mapOptions: {
       slider: true,
@@ -87,6 +89,14 @@ mapDeferred.addCallback(function (response) {
   dojo.byId("subtitle").innerHTML = configOptions.subtitle || response.itemInfo.item.snippet || "";
 
   map = response.map;
+
+  if (configOptions.popupMaxHeight == undefined || configOptions.popupMaxHeight == null || configOptions.popupMaxHeight == 0) {
+    configOptions.popupMaxHeight = 600;
+  }
+
+  if (configOptions.popupWidth != undefined && configOptions.popupWidth != null && configOptions.popupWidth > 0) {
+    map.infoWindow.resize(configOptions.popupWidth, configOptions.popupMaxHeight);
+  }
 
   var popupTemplate = new esri.InfoTemplate();
   popupTemplate.setTitle("${NAME}");
@@ -116,13 +126,7 @@ mapDeferred.addCallback(function (response) {
     dojo.on(zoomOutLink, "click", zoomToHomeExtent);
   }
 
-  if (configOptions.popupMaxHeight == undefined || configOptions.popupMaxHeight == null || configOptions.popupMaxHeight == 0) {
-    configOptions.popupMaxHeight = 600;
-  }
-
-  if (configOptions.popupWidth != undefined && configOptions.popupWidth != null && configOptions.popupWidth > 0) {
-    map.infoWindow.resize(configOptions.popupWidth, configOptions.popupMaxHeight);
-  }
+  
 
 
   var layers = response.itemInfo.itemData.operationalLayers;

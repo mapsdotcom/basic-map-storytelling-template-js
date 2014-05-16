@@ -147,7 +147,7 @@ mapDeferred.addErrback(function (error) {
 }
 
 function createChartDiv() {
-  var chartDiv = dojo.create("div", { id: "simplechart", style: { width: "380px", height: "250px" } }, dojo.body());
+  var chartDiv = dojo.create("div", { id: "simplechart", style: { width: "380px", height: "170px" } }, dojo.body());
 }
 
 function getWindowContent(feature) {
